@@ -1,0 +1,132 @@
+''' 
+    step 1. pip install pdfminer.six
+
+    step 2. pip install nltk
+
+    step 3. WRITE IT ON CONSOLE  
+
+   3.a) import nltk
+   3.b) nltk.download()
+   
+   step 4.One page will open, From that page download "WORDS" from "CORPORA" column
+   
+   
+'''
+print(''' 
+    step 1. pip install pdfminer.six
+
+    step 2. pip install nltk
+
+    step 3. WRITE IT ON CONSOLE  
+
+   3.a) import nltk
+   3.b) nltk.download()
+   
+   step 4.One page will open, From that page download "WORDS" from "CORPORA" column
+   
+   
+''')
+
+import io
+
+from nltk.corpus import words
+
+from pdfminer.converter import TextConverter as T
+
+from pdfminer.pdfinterp import PDFPageInterpreter as PI
+
+from pdfminer.pdfinterp import PDFResourceManager as PD
+
+from pdfminer.pdfpage import PDFPage as PP
+
+
+def extract_text_by_page(pdf_path):
+    with open(pdf_path, 'rb') as fh:
+        for page in PP.get_pages(fh, 
+                                      caching=True,
+                                      check_extractable=True):
+            resource_manager = PD()
+            
+            fake_file_handle = io.StringIO()
+            
+            converter = T(resource_manager, fake_file_handle)
+            
+            page_interpreter = PI(resource_manager, converter)
+           
+            page_interpreter.process_page(page)
+            
+            text = fake_file_handle.getvalue()
+           
+            yield text
+            # close open handles
+            converter.close()
+            fake_file_handle.close()
+            
+            
+            
+def extract_text(pdf_path):
+    
+    text=""
+    
+    for page in extract_text_by_page(pdf_path):
+        
+        text+=page
+  
+    return text
+         
+
+if __name__ == '__main__':
+    
+    
+      text=extract_text('PDFNAME.pdf')
+      
+      
+      for c,e in enumerate(text):
+          x=""
+          
+          
+          if e == "=":
+              if c-30<0:
+                   
+                    i=c+28;
+                    while i<len(text) and text[i]!=chr(32) and text[i]!='.':
+                        i+=1
+                    x = text[:i] 
+                  
+                 
+                  
+              else:
+                    #x = text[c-30:c+30] 
+                    j=c-28;
+                    while j>0 and text[j]!=chr(32):
+                        j-=1
+                    i=c+28;
+                    while i<len(text) and text[i]!=chr(32) and text[i]!='.':
+                        i+=1
+                    x = text[j:i] 
+                               
+                  
+                  
+            
+          if('+' in x or '-' in x or '*' in x or '/' in x):
+              
+              for i in x.split():
+                  p=0
+                  if i not in words.words() and i.title() not in words.words() and i.lower() not in words.words():
+                      if (('s' == i[len(i)-2] and '.' == i[len(i)-1]) and i[0:len(i)-2] in words.words()):
+                          p=1;
+                      if (('s' == i[len(i)-1] or '.' == i[len(i)-1]) and i[0:len(i)-1] in words.words()):
+                          p=1;
+                          #print(" \n ",i," \n") 
+                      if (not p):        
+                          print(i,end=" ")
+                          
+
+                           
+                                              
+                  
+              print("\n")      
+     
+      print("\n \n Converted Succefully \n \n")  
+      #import nltk
+      #nltk.download()
